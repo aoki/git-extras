@@ -1,0 +1,43 @@
+#!/bin/sh
+
+CMDNAME=`basename $0`
+
+if [ ${#} -eq 0 ]; then
+  cat .gitignore
+  exit 0;
+fi
+
+function usage() {
+  echo "----------" 1>&2
+  echo "Usage: git ignore [-a|-i VALUE]" 1>&2
+  echo "Examlpe: git ignore -i osx,java" 1>&2
+  echo "  * Create a new .gitignore file and add a list of ignore file-names for osx and java to .gitignore" 1>&2
+  echo "----------" 1>&2
+  exit 1
+}
+
+FLAG_INIT=false
+FLAG_ADD=false
+
+while getopts i:a: OPT
+do
+  case ${OPT} in
+    "i" ) FLAG_INIT=true; IGNORE_LIST=${OPTARG};;
+    "a" ) FLAG_ADD=true; IGNORE_LIST=${OPTARG};;
+    * )   usage;;
+  esac
+done
+
+if ${FLAG_INIT}; then
+  echo "Create the new .gitignore file."
+  curl -s http://www.gitignore.io/api/${IGNORE_LIST} | tail -n +3 > .gitignore
+  exit 0 
+fi
+
+if ${FLAG_ADD}; then
+  echo "Add a ignore data to the .gitignore file."
+  curl -s http://www.gitignore.io/api/${IGNORE_LIST} | tail -n +3 >> .gitignore
+  exit 0
+fi
+
+usage

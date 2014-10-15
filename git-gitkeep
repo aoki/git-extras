@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if ! git rev-parse 2> /dev/null; then
+  echo -e "\033[0;31mERROR\033[0;39m: This directory is not git repository \033[0;31m:(\033[0;39m"
+  exit 1
+fi
+
+Seek() {
+  for DIR in * ; do
+    if [ -d "${DIR}" ]; then
+      if [ -f "${DIR}/.gitkeep" ]; then
+        echo  ".gitkeep already exists .gitkeep in `pwd`/${DIR}"
+      elif [ -z "$(ls -A ${DIR})" ]; then 
+        touch ${DIR}/.gitkeep
+        echo  "Create .gitkeep in `pwd`/${DIR}"
+      fi
+      (cd "${DIR}"; Seek;)
+    fi
+  done
+}
+
+Seek;
+echo -e "done!! \033[0;32m:)\033[0;39m"

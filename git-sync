@@ -1,0 +1,41 @@
+#!/bin/sh
+
+CMDNAME=`basename $0`
+
+function usage() {
+  echo "----------" 1>&2
+  echo "Usage: $CMDNAME BRANCH_NAME" 1>&2
+  echo "Examlpe: $CMDNAME develop" 1>&2
+  echo "  * upstreamのdevelopブランチをoriginのdevelopブランチにpushする" 1>&2
+  echo "----------" 1>&2
+  exit 1
+}
+
+if [ ${#} -eq 0 ]; then
+  usage
+  exit 0;
+fi
+
+BRANCH_NAME=$1
+OLD_BRANCH=`git branch |grep "*"|cut -d ' ' -f 2`
+git status | grep "nothing to commit, working directory clean"
+CURRENT_STATUS=$?
+STASHED=false
+
+if [[ ${CURRENT_STATUS} -ne 0 ]]; then 
+  echo "\033[0;32m[stash] Stash the workind directory\033[0;39m"
+  git stash
+  STASHED=true
+fi
+echo "\033[0;32m[checkout] Checkout the ${BRANCH_NAME}\033[0;39m"
+git checkout ${BRANCH_NAME}
+echo "\033[0;32m[pull] Pull the ${BRANCH_NAME} from the upstream\033[0;39m"
+git pull upstream ${BRANCH_NAME}
+echo "\033[0;32m[push] Push the ${BRANCH_NAME} to the origin\033[0;39m"
+git push origin ${BRANCH_NAME}
+echo "\033[0;32m[checkout] Checkout the ${OLD_BRANCH}\033[0;39m"
+git checkout ${OLD_BRANCH}
+if $STASHED ; then 
+  echo "\033[0;32m[stash] Pop the working directory\033[0;39m"
+  git stash pop
+fi

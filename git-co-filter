@@ -1,0 +1,4 @@
+#!/bin/bash -eu
+# Recommend to set alias like a `co = 'git co-filter'`
+
+git branch | grep -v "\*" | sh -c "${FILTER:-fzf}" | xargs git co

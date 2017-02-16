@@ -1,0 +1,13 @@
+#!/bin/bash -u
+# Branch Cop
+
+git fetch --prune
+git branch --list --merged master | grep -vE "\*|master$|develop$|release$" | xargs git branch -d
+[[ "${1:-}" = '-r' ]] && {
+  echo "Remove merged remote branches."
+  git branch --list -r --merged master | grep -vE "\*|master$|develop$|release$" | cut -d '/'  -f 2- | xargs git push --delete origin
+}
+
+printf "# Branches\n"
+git branch -a
+
